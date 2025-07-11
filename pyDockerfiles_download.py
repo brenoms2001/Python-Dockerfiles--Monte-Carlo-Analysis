@@ -1,6 +1,6 @@
 import requests
 from pathlib import Path
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
 import os
 
 # Importa as credenciais da conta no github
@@ -10,12 +10,11 @@ HEADERS = {
     "Authorization": f"token {GITHUB_TOKEN}",
     "Accept": "application/vnd.github.v3+json"
 }
-
 # Especifica o diretório
 user = "docker-library"
 repo = "python"
 base_path = "baixados"
-versoes = ["3.9", "3.10", "3.11", "3.12", "3.13"]
+versoes = ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14-rc"]
 
 def baixar_arquivos(path_relativo, pasta_destino):
     api_url = f"https://api.github.com/repos/{user}/{repo}/contents/{path_relativo}"
