@@ -1,6 +1,6 @@
 import requests
 from pathlib import Path
-#from dotenv import load_dotenv
+from dotenv import load_dotenv
 import os
 
 # Importa as credenciais da conta no github
