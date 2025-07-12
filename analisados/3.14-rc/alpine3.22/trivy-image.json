@@ -1,0 +1,138 @@
+{
+  "SchemaVersion": 2,
+  "CreatedAt": "2025-07-12T16:15:36.376626259-03:00",
+  "ArtifactName": "trivy-scan:3.14-rc-alpine3.22",
+  "ArtifactType": "container_image",
+  "Metadata": {
+    "Size": 55224832,
+    "OS": {
+      "Family": "alpine",
+      "Name": "3.22.0"
+    },
+    "ImageID": "sha256:57962d72628712234359604433aace73c5e6da9f0cc2e211a4dbf34128d04ee4",
+    "DiffIDs": [
+      "sha256:fd2758d7a50e2b78d275ee7d1c218489f2439084449d895fa17eede6c61ab2c4",
+      "sha256:caf344efde68ff1e64c5801f96775b6b6625ef60f06ddc243974efc43fa2bad1",
+      "sha256:81fbaf426ad2affcf9560fd5772d40a475f1f8ab460e29a12ce6b16453ed246d",
+      "sha256:2a79bd5c5306ea3f3416546ea9f8d5c997f0b89cfec003109847549f4a0d7a5e"
+    ],
+    "RepoTags": [
+      "trivy-scan:3.14-rc-alpine3.22"
+    ],
+    "RepoDigests": [
+      "trivy-scan@sha256:57962d72628712234359604433aace73c5e6da9f0cc2e211a4dbf34128d04ee4"
+    ],
+    "ImageConfig": {
+      "architecture": "amd64",
+      "created": "2025-07-12T02:35:27.019734769Z",
+      "history": [
+        {
+          "created": "2025-05-30T16:20:41Z",
+          "created_by": "ADD alpine-minirootfs-3.22.0-x86_64.tar.gz / # buildkit",
+          "comment": "buildkit.dockerfile.v0"
+        },
+        {
+          "created": "2025-05-30T16:20:41Z",
+          "created_by": "CMD [\"/bin/sh\"]",
+          "comment": "buildkit.dockerfile.v0",
+          "empty_layer": true
+        },
+        {
+          "created": "2025-07-11T23:37:40Z",
+          "created_by": "ENV PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+          "comment": "buildkit.dockerfile.v0",
+          "empty_layer": true
+        },
+        {
+          "created": "2025-07-11T23:37:40Z",
+          "created_by": "RUN /bin/sh -c set -eux; \tapk add --no-cache \t\tca-certificates \t\ttzdata \t; # buildkit",
+          "comment": "buildkit.dockerfile.v0"
+        },
+        {
+          "created": "2025-07-11T23:37:40Z",
+          "created_by": "ENV PYTHON_VERSION=3.14.0b4",
+          "comment": "buildkit.dockerfile.v0",
+          "empty_layer": true
+        },
+        {
+          "created": "2025-07-11T23:37:40Z",
+          "created_by": "ENV PYTHON_SHA256=15e123e056abebba6de5e73cfa304459a8c82cafa85d4fc7fc6de80e6a3e1b39",
+          "comment": "buildkit.dockerfile.v0",
+          "empty_layer": true
+        },
+        {
+          "created": "2025-07-12T02:35:26Z",
+          "created_by": "RUN /bin/sh -c set -eux; \t\tapk add --no-cache --virtual .build-deps \t\tgnupg \t\ttar \t\txz \t\t\t\tbluez-dev \t\tbzip2-dev \t\tdpkg-dev dpkg \t\tfindutils \t\tgcc \t\tgdbm-dev \t\tlibc-dev \t\tlibffi-dev \t\tlibnsl-dev \t\tlibtirpc-dev \t\tlinux-headers \t\tmake \t\tncurses-dev \t\topenssl-dev \t\tpax-utils \t\treadline-dev \t\tsqlite-dev \t\ttcl-dev \t\ttk \t\ttk-dev \t\tutil-linux-dev \t\txz-dev \t\tzlib-dev \t; \t\twget -O python.tar.xz \"https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz\"; \techo \"$PYTHON_SHA256 *python.tar.xz\" | sha256sum -c -; \tmkdir -p /usr/src/python; \ttar --extract --directory /usr/src/python --strip-components=1 --file python.tar.xz; \trm python.tar.xz; \t\tcd /usr/src/python; \tgnuArch=\"$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)\"; \t./configure \t\t--build=\"$gnuArch\" \t\t--enable-loadable-sqlite-extensions \t\t--enable-option-checking=fatal \t\t--enable-shared \t\t$(test \"$gnuArch\" != 'riscv64-linux-musl' \u0026\u0026 echo '--with-lto') \t\t--with-ensurepip \t; \tnproc=\"$(nproc)\"; \tEXTRA_CFLAGS=\"-DTHREAD_STACK_SIZE=0x100000\"; \tLDFLAGS=\"${LDFLAGS:--Wl},--strip-all\"; \t\tarch=\"$(apk --print-arch)\"; \t\tcase \"$arch\" in \t\t\tx86_64|aarch64) \t\t\t\tEXTRA_CFLAGS=\"${EXTRA_CFLAGS:-} -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer\"; \t\t\t\t;; \t\t\tx86) \t\t\t\t;; \t\t\t*) \t\t\t\tEXTRA_CFLAGS=\"${EXTRA_CFLAGS:-} -fno-omit-frame-pointer\"; \t\t\t\t;; \t\tesac; \tmake -j \"$nproc\" \t\t\"EXTRA_CFLAGS=${EXTRA_CFLAGS:-}\" \t\t\"LDFLAGS=${LDFLAGS:-}\" \t; \trm python; \tmake -j \"$nproc\" \t\t\"EXTRA_CFLAGS=${EXTRA_CFLAGS:-}\" \t\t\"LDFLAGS=${LDFLAGS:--Wl},-rpath='\\$\\$ORIGIN/../lib'\" \t\tpython \t; \tmake install; \t\tcd /; \trm -rf /usr/src/python; \t\tfind /usr/local -depth \t\t\\( \t\t\t\\( -type d -a \\( -name test -o -name tests -o -name idle_test \\) \\) \t\t\t-o \\( -type f -a \\( -name '*.pyc' -o -name '*.pyo' -o -name 'libpython*.a' \\) \\) \t\t\\) -exec rm -rf '{}' + \t; \t\tfind /usr/local -type f -executable -not \\( -name '*tkinter*' \\) -exec scanelf --needed --nobanner --format '%n#p' '{}' ';' \t\t| tr ',' '\\n' \t\t| sort -u \t\t| awk 'system(\"[ -e /usr/local/lib/\" $1 \" ]\") == 0 { next } { print \"so:\" $1 }' \t\t| xargs -rt apk add --no-network --virtual .python-rundeps \t; \tapk del --no-network .build-deps; \t\texport PYTHONDONTWRITEBYTECODE=1; \tpython3 --version; \tpip3 --version # buildkit",
+          "comment": "buildkit.dockerfile.v0"
+        },
+        {
+          "created": "2025-07-12T02:35:27Z",
+          "created_by": "RUN /bin/sh -c set -eux; \tfor src in idle3 pip3 pydoc3 python3 python3-config; do \t\tdst=\"$(echo \"$src\" | tr -d 3)\"; \t\t[ -s \"/usr/local/bin/$src\" ]; \t\t[ ! -e \"/usr/local/bin/$dst\" ]; \t\tln -svT \"$src\" \"/usr/local/bin/$dst\"; \tdone # buildkit",
+          "comment": "buildkit.dockerfile.v0"
+        },
+        {
+          "created": "2025-07-12T02:35:27Z",
+          "created_by": "CMD [\"python3\"]",
+          "comment": "buildkit.dockerfile.v0",
+          "empty_layer": true
+        }
+      ],
+      "os": "linux",
+      "rootfs": {
+        "type": "layers",
+        "diff_ids": [
+          "sha256:fd2758d7a50e2b78d275ee7d1c218489f2439084449d895fa17eede6c61ab2c4",
+          "sha256:caf344efde68ff1e64c5801f96775b6b6625ef60f06ddc243974efc43fa2bad1",
+          "sha256:81fbaf426ad2affcf9560fd5772d40a475f1f8ab460e29a12ce6b16453ed246d",
+          "sha256:2a79bd5c5306ea3f3416546ea9f8d5c997f0b89cfec003109847549f4a0d7a5e"
+        ]
+      },
+      "config": {
+        "Cmd": [
+          "python3"
+        ],
+        "Env": [
+          "PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+          "PYTHON_VERSION=3.14.0b4",
+          "PYTHON_SHA256=15e123e056abebba6de5e73cfa304459a8c82cafa85d4fc7fc6de80e6a3e1b39"
+        ],
+        "WorkingDir": "/",
+        "ArgsEscaped": true
+      }
+    },
+    "Layers": [
+      {
+        "Size": 8593920,
+        "Digest": "sha256:fe07684b16b82247c3539ed86a65ff37a76138ec25d380bd80c869a1a4c73236",
+        "DiffID": "sha256:fd2758d7a50e2b78d275ee7d1c218489f2439084449d895fa17eede6c61ab2c4"
+      },
+      {
+        "Size": 1688576,
+        "Digest": "sha256:74b81317715bc336b8d52593c2dd374d09405e94ca017737e99c7703ee513380",
+        "DiffID": "sha256:caf344efde68ff1e64c5801f96775b6b6625ef60f06ddc243974efc43fa2bad1"
+      },
+      {
+        "Size": 44937216,
+        "Digest": "sha256:2f9b9cfef74bb8c48fd59c48e489cab4433298b32f6895c53d80f4a1aaa0c025",
+        "DiffID": "sha256:81fbaf426ad2affcf9560fd5772d40a475f1f8ab460e29a12ce6b16453ed246d"
+      },
+      {
+        "Size": 5120,
+        "Digest": "sha256:92519b71c5d6a810018d134bd59066037259ab277092e1d7409d5e72b7e3aeb0",
+        "DiffID": "sha256:2a79bd5c5306ea3f3416546ea9f8d5c997f0b89cfec003109847549f4a0d7a5e"
+      }
+    ]
+  },
+  "Results": [
+    {
+      "Target": "trivy-scan:3.14-rc-alpine3.22 (alpine 3.22.0)",
+      "Class": "os-pkgs",
+      "Type": "alpine"
+    },
+    {
+      "Target": "Python",
+      "Class": "lang-pkgs",
+      "Type": "python-pkg"
+    }
+  ]
+}

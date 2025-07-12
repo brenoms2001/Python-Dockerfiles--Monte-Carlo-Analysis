@@ -1,3 +1,4 @@
+import os
 import subprocess
 from pathlib import Path
 
@@ -24,6 +25,10 @@ def docker_build_and_scan(dockerfile_path: Path):
     output_path.mkdir(parents=True, exist_ok=True)
     output_json = output_path / "trivy-image.json"
 
+    # Pega o dockerfile na pasta baixados, builda, escaneia com trivy
+    # e salva o json com as CVEs na pasta analisados na subpasta de 
+    # mesmo nome
+    
     try:
         print(f"🐳 Buildando {tag}...")
         subprocess.run(
@@ -31,13 +36,14 @@ def docker_build_and_scan(dockerfile_path: Path):
             check=True
         )
 
-        #print(f"🔍 Escaneando com Trivy: {tag}")
-        #subprocess.run(
-        #    ["trivy", "image", "-f", "json", "-o", str(output_json), tag],
-        #    check=True
-        #)
-#
-        #imagens.append(tag)
+        docker_host = f'unix://{os.environ["HOME"]}/.docker/desktop/docker.sock'
+        print(f"🔍 Escaneando com Trivy: {tag}")
+        subprocess.run(
+            ["trivy", "image", "--docker-host", docker_host, "-f", "json", "-o", str(output_json), tag],
+            check=True
+        )
+
+        imagens.append(tag)
 
 
     except subprocess.CalledProcessError as e:
