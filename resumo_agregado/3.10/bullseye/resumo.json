@@ -1,0 +1,10 @@
+{
+  "imagem": "trivy-scan:3.10-bullseye",
+  "resumo": {
+    "LOW": 957,
+    "HIGH": 316,
+    "CRITICAL": 13,
+    "MEDIUM": 1057,
+    "UNKNOWN": 6
+  }
+}

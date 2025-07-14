@@ -1,0 +1,7 @@
+{
+  "imagem": "trivy-scan:3.10-alpine3.21",
+  "resumo": {
+    "MEDIUM": 1,
+    "HIGH": 2
+  }
+}
