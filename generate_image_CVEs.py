@@ -36,6 +36,8 @@ def docker_build_and_scan(dockerfile_path: Path):
             check=True
         )
 
+        # Caminho alternativo porque o código foi feito pra rodar com o docker desktop
+        # O arquivo não é posto no mesmo local que o docker convencional
         docker_host = f'unix://{os.environ["HOME"]}/.docker/desktop/docker.sock'
         print(f"🔍 Escaneando com Trivy: {tag}")
         subprocess.run(
