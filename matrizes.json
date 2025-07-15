@@ -1,0 +1,266 @@
+{
+  "3.10": {
+    "alpine3.21": {
+      "LOW": 0,
+      "MEDIUM": 1,
+      "HIGH": 2,
+      "CRITICAL": 0,
+      "UNKNOWN": 0
+    },
+    "alpine3.22": {
+      "LOW": 0,
+      "MEDIUM": 1,
+      "HIGH": 2,
+      "CRITICAL": 0,
+      "UNKNOWN": 0
+    },
+    "bookworm": {
+      "LOW": 700,
+      "MEDIUM": 595,
+      "HIGH": 231,
+      "CRITICAL": 9,
+      "UNKNOWN": 6
+    },
+    "bullseye": {
+      "LOW": 957,
+      "MEDIUM": 1057,
+      "HIGH": 316,
+      "CRITICAL": 13,
+      "UNKNOWN": 6
+    },
+    "slim-bookworm": {
+      "LOW": 74,
+      "MEDIUM": 23,
+      "HIGH": 9,
+      "CRITICAL": 1,
+      "UNKNOWN": 2
+    },
+    "slim-bullseye": {
+      "LOW": 85,
+      "MEDIUM": 25,
+      "HIGH": 9,
+      "CRITICAL": 2,
+      "UNKNOWN": 2
+    }
+  },
+  "3.11": {
+    "alpine3.21": {
+      "LOW": 0,
+      "MEDIUM": 0,
+      "HIGH": 2,
+      "CRITICAL": 0,
+      "UNKNOWN": 0
+    },
+    "alpine3.22": {
+      "LOW": 0,
+      "MEDIUM": 0,
+      "HIGH": 2,
+      "CRITICAL": 0,
+      "UNKNOWN": 0
+    },
+    "bookworm": {
+      "LOW": 700,
+      "MEDIUM": 594,
+      "HIGH": 231,
+      "CRITICAL": 9,
+      "UNKNOWN": 6
+    },
+    "bullseye": {
+      "LOW": 957,
+      "MEDIUM": 1056,
+      "HIGH": 316,
+      "CRITICAL": 13,
+      "UNKNOWN": 6
+    },
+    "slim-bookworm": {
+      "LOW": 74,
+      "MEDIUM": 22,
+      "HIGH": 9,
+      "CRITICAL": 1,
+      "UNKNOWN": 2
+    },
+    "slim-bullseye": {
+      "LOW": 85,
+      "MEDIUM": 24,
+      "HIGH": 9,
+      "CRITICAL": 2,
+      "UNKNOWN": 2
+    }
+  },
+  "3.12": {
+    "alpine3.21": {
+      "LOW": 0,
+      "MEDIUM": 0,
+      "HIGH": 0,
+      "CRITICAL": 0,
+      "UNKNOWN": 0
+    },
+    "alpine3.22": {
+      "LOW": 0,
+      "MEDIUM": 0,
+      "HIGH": 0,
+      "CRITICAL": 0,
+      "UNKNOWN": 0
+    },
+    "bookworm": {
+      "LOW": 700,
+      "MEDIUM": 594,
+      "HIGH": 229,
+      "CRITICAL": 9,
+      "UNKNOWN": 6
+    },
+    "bullseye": {
+      "LOW": 957,
+      "MEDIUM": 1056,
+      "HIGH": 314,
+      "CRITICAL": 13,
+      "UNKNOWN": 6
+    },
+    "slim-bookworm": {
+      "LOW": 74,
+      "MEDIUM": 22,
+      "HIGH": 7,
+      "CRITICAL": 1,
+      "UNKNOWN": 2
+    },
+    "slim-bullseye": {
+      "LOW": 85,
+      "MEDIUM": 24,
+      "HIGH": 7,
+      "CRITICAL": 2,
+      "UNKNOWN": 2
+    }
+  },
+  "3.13": {
+    "alpine3.21": {
+      "LOW": 0,
+      "MEDIUM": 0,
+      "HIGH": 0,
+      "CRITICAL": 0,
+      "UNKNOWN": 0
+    },
+    "alpine3.22": {
+      "LOW": 0,
+      "MEDIUM": 0,
+      "HIGH": 0,
+      "CRITICAL": 0,
+      "UNKNOWN": 0
+    },
+    "bookworm": {
+      "LOW": 700,
+      "MEDIUM": 594,
+      "HIGH": 229,
+      "CRITICAL": 9,
+      "UNKNOWN": 6
+    },
+    "bullseye": {
+      "LOW": 957,
+      "MEDIUM": 1056,
+      "HIGH": 314,
+      "CRITICAL": 13,
+      "UNKNOWN": 6
+    },
+    "slim-bookworm": {
+      "LOW": 62,
+      "MEDIUM": 18,
+      "HIGH": 7,
+      "CRITICAL": 1,
+      "UNKNOWN": 2
+    },
+    "slim-bullseye": {
+      "LOW": 85,
+      "MEDIUM": 24,
+      "HIGH": 7,
+      "CRITICAL": 2,
+      "UNKNOWN": 2
+    }
+  },
+  "3.14-rc": {
+    "alpine3.21": {
+      "LOW": 0,
+      "MEDIUM": 0,
+      "HIGH": 0,
+      "CRITICAL": 0,
+      "UNKNOWN": 0
+    },
+    "alpine3.22": {
+      "LOW": 0,
+      "MEDIUM": 0,
+      "HIGH": 0,
+      "CRITICAL": 0,
+      "UNKNOWN": 0
+    },
+    "bookworm": {
+      "LOW": 700,
+      "MEDIUM": 594,
+      "HIGH": 229,
+      "CRITICAL": 9,
+      "UNKNOWN": 6
+    },
+    "bullseye": {
+      "LOW": 957,
+      "MEDIUM": 1056,
+      "HIGH": 314,
+      "CRITICAL": 13,
+      "UNKNOWN": 6
+    },
+    "slim-bookworm": {
+      "LOW": 62,
+      "MEDIUM": 18,
+      "HIGH": 7,
+      "CRITICAL": 1,
+      "UNKNOWN": 2
+    },
+    "slim-bullseye": {
+      "LOW": 85,
+      "MEDIUM": 24,
+      "HIGH": 7,
+      "CRITICAL": 2,
+      "UNKNOWN": 2
+    }
+  },
+  "3.9": {
+    "alpine3.21": {
+      "LOW": 0,
+      "MEDIUM": 1,
+      "HIGH": 3,
+      "CRITICAL": 0,
+      "UNKNOWN": 0
+    },
+    "alpine3.22": {
+      "LOW": 0,
+      "MEDIUM": 1,
+      "HIGH": 3,
+      "CRITICAL": 0,
+      "UNKNOWN": 0
+    },
+    "bookworm": {
+      "LOW": 700,
+      "MEDIUM": 595,
+      "HIGH": 232,
+      "CRITICAL": 9,
+      "UNKNOWN": 6
+    },
+    "bullseye": {
+      "LOW": 957,
+      "MEDIUM": 1057,
+      "HIGH": 317,
+      "CRITICAL": 13,
+      "UNKNOWN": 6
+    },
+    "slim-bookworm": {
+      "LOW": 74,
+      "MEDIUM": 23,
+      "HIGH": 10,
+      "CRITICAL": 1,
+      "UNKNOWN": 2
+    },
+    "slim-bullseye": {
+      "LOW": 85,
+      "MEDIUM": 25,
+      "HIGH": 10,
+      "CRITICAL": 2,
+      "UNKNOWN": 2
+    }
+  }
+}
