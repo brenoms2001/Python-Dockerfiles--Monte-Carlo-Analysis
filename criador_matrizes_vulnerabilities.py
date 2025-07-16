@@ -2,7 +2,6 @@
 
 import pip
 
-from distribuicoes_vulnerabilities import distribuicoes_vulnerabilities
 pip.main(['install', 'pandas'])
 from pathlib import Path
 import json
@@ -56,7 +55,7 @@ def salva_json(matrizes: dict[str, pd.DataFrame], destino: Path) -> None:
         json.dump(resultado, f, indent=2, ensure_ascii=False)
 
 
-def main() -> None:
+def monta_matrizes() -> None:
     dados = coleta_resumos(BASE)
     matrizes = monta_matrix_por_versao(dados)
 
@@ -66,10 +65,3 @@ def main() -> None:
 
     print("✅ Matrizes salvas em JSON!")
     print("Exemplo (3.11):\n", matrizes["3.11"])
-
-    distribuicoes_vulnerabilities("matrizes.json")  
-
-
-
-if __name__ == "__main__":
-    main()
