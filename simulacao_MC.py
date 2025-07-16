@@ -1,6 +1,7 @@
 from distribuicoes_vulnerabilities import distribuicoes_vulnerabilities
 from criador_matrizes_vulnerabilities import monta_matrizes
 from plota_histogramas_simulados import plota_histogramas_simulados
+from analise_percentis import analise_percentis
 import numpy as np
 from scipy.stats import triang
 from typing import Dict, List
@@ -67,15 +68,7 @@ def main() -> None:
 
     resumo_distrib(risco_geral, "RISCO GERAL ponderado")
 
-
-    percentiles = np.percentile(risco_geral, [10, 25, 50, 75, 90])
-    print("\n📈 Percentis do Risco Geral:"
-          f"\n  10%: {percentiles[0]:.2f}"
-          f"\n  25%: {percentiles[1]:.2f}"
-          f"\n  50%: {percentiles[2]:.2f}"
-          f"\n  75%: {percentiles[3]:.2f}"
-          f"\n  90%: {percentiles[4]:.2f}"
-          f"\n")
+    analise_percentis(risco_geral)
 
     plota_histogramas_simulados(samples, risco_geral)
 
