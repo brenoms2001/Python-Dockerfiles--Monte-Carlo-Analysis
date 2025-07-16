@@ -7,7 +7,7 @@ from scipy.stats import triang
 from typing import Dict, List
 
 # ---------- Pesos para o risco_geral --------------------------
-RISK_WEIGHTS = {
+pesos_riscos = {
     "UNKNOWN": 0.5,
     "LOW": 1,
     "MEDIUM": 3,
@@ -40,13 +40,13 @@ def simula_monte_carlo(parametros: Dict[str, Dict[str, int]], n_amostras: int = 
         samples[nivel] = amostrador(n_amostras).astype(int)
 
     # risco geral ponderado
-    risco_geral = sum(samples[nivel] * RISK_WEIGHTS[nivel]
+    risco_geral = sum(samples[nivel] * pesos_riscos[nivel]
                       for nivel in samples)
 
     return samples, risco_geral
 
 def resumo_distrib(arr: np.ndarray, label: str):
-    print(f"\n📊 {label}")
+    print(f"\n\n📊 {label}")
     print(f"  Média     : {arr.mean():.2f}")
     print(f"  Variância : {arr.var():.2f}")
     print(f"  Desvio P. : {arr.std():.2f}")
@@ -67,8 +67,15 @@ def main() -> None:
         resumo_distrib(arr, f"{nivel} CVEs")
 
     resumo_distrib(risco_geral, "RISCO GERAL ponderado")
+    
+    # Análise de percentis
+    percentiles = np.percentile(risco_geral, [5, 25, 50, 75, 90, 95])
+    print("\n📈 Percentis do Risco Geral Simulado:")
+    for p, val in zip([5, 25, 50, 75, 90, 95], percentiles):
+        print(f"  {p:>2}%: {val:.2f}")
 
-    analise_percentis(risco_geral)
+    analise_percentis(percentiles, pesos_riscos, "3.9-bookworm")
+    analise_percentis(percentiles, pesos_riscos, "3.9-bullseye")
 
     plota_histogramas_simulados(samples, risco_geral)
 
