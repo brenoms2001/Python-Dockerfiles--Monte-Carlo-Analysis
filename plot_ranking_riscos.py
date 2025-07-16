@@ -12,7 +12,7 @@ def plot_ranking_riscos(riscos_reais: Dict[str, float], caminho_saida: str = "Pl
     plt.barh(nomes, valores, color='crimson')
     plt.xlabel("Risco Real Ponderado")
     plt.ylabel("Versão da Imagem Docker")
-    plt.title("🔻 Ranking de Risco Real por Versão")
+    plt.title("Ranking de Risco Real por Versão")
     plt.gca().invert_yaxis()
     plt.grid(axis='x', linestyle='--', alpha=0.4)
 

@@ -17,10 +17,6 @@ pesos_riscos = {
 }
 
 def _cria_distrib_triangular(param: Dict[str, int]):
-    """
-    Constrói uma distribuição triangular scipy.stats.triang
-    a partir de {min, mode, max}.
-    """
     a, c, b = param["min"], param["mode"], param["max"]
     if b == a:                  # degenera (tudo igual) → usa delta dirac
         return lambda n: np.full(n, a)
