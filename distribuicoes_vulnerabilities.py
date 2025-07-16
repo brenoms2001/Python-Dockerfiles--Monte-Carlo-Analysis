@@ -72,12 +72,4 @@ def distribuicoes_vulnerabilities(json_path: str | Path, plot_dir: str | Path = 
         plt.close()
         print(f"✅ Gráfico salvo em {plot_dir / f'{risk}.png'}")
 
-        # Guardar valores brutos
-        valores_por_risco[risk] = all_cves
-
-    if salvar_valores:
-        with open("valores_por_risco.json", "w", encoding="utf-8") as f:
-            json.dump(valores_por_risco, f, indent=2)
-        print("📁 Arquivo 'valores_por_risco.json' salvo com os dados brutos.")
-
     return parametros_triangular

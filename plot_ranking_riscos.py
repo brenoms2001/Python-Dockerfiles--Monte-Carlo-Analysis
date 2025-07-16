@@ -18,4 +18,3 @@ def plot_ranking_riscos(riscos_reais: Dict[str, float], caminho_saida: str = "Pl
 
     plt.tight_layout()
     plt.savefig(caminho_saida)
-    plt.show()
