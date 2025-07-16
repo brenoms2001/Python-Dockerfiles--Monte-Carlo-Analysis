@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
 
-def distribuicoes_vulnerabilidades(json_path: str | Path, plot_dir: str | Path = "Plots", salvar_valores: bool = True):
+def distribuicoes_vulnerabilities(json_path: str | Path, plot_dir: str | Path = "Plots", salvar_valores: bool = True):
 
     with open(json_path, encoding="utf-8") as f:
         data = json.load(f)

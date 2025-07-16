@@ -1,5 +1,6 @@
-from distribuicoes_vulnerabilities import distribuicoes_vulnerabilidades
+from distribuicoes_vulnerabilities import distribuicoes_vulnerabilities
 from criador_matrizes_vulnerabilities import monta_matrizes
+from plota_histogramas_simulados import plota_histogramas_simulados
 import numpy as np
 from scipy.stats import triang
 from typing import Dict, List
@@ -52,19 +53,21 @@ def resumo_distrib(arr: np.ndarray, label: str):
 
 
 
+from simulacao_MC import simula_monte_carlo, resumo_distrib, plota_histogramas_simulados
+
 def main() -> None:
     monta_matrizes()
-    parametros = distribuicoes_vulnerabilidades("matrizes.json")
+    parametros = distribuicoes_vulnerabilities("matrizes.json")
 
-    # Monte Carlo
-    n = 50_000                      # número de amostras
+    n = 50_000
     samples, risco_geral = simula_monte_carlo(parametros, n)
 
-    # Resumos
     for nivel, arr in samples.items():
         resumo_distrib(arr, f"{nivel} CVEs")
 
     resumo_distrib(risco_geral, "RISCO GERAL ponderado")
+
+    plota_histogramas_simulados(samples, risco_geral)
 
 if __name__ == "__main__":
     main()
