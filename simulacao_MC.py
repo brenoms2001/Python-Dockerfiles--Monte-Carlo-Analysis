@@ -2,6 +2,7 @@ from distribuicoes_vulnerabilities import distribuicoes_vulnerabilities
 from criador_matrizes_vulnerabilities import monta_matrizes
 from plota_histogramas_simulados import plota_histogramas_simulados
 from analise_percentis import analise_percentis
+from plot_ranking_riscos import plot_ranking_riscos
 import numpy as np
 from scipy.stats import triang
 from typing import Dict, List
@@ -54,8 +55,6 @@ def resumo_distrib(arr: np.ndarray, label: str):
 
 
 
-from simulacao_MC import simula_monte_carlo, resumo_distrib, plota_histogramas_simulados
-
 def main() -> None:
     monta_matrizes()
     parametros = distribuicoes_vulnerabilities("matrizes.json")
@@ -74,8 +73,19 @@ def main() -> None:
     for p, val in zip([5, 25, 50, 75, 90, 95], percentiles):
         print(f"  {p:>2}%: {val:.2f}")
 
-    analise_percentis(percentiles, pesos_riscos, "3.9-bookworm")
-    analise_percentis(percentiles, pesos_riscos, "3.9-bullseye")
+    # Armazena os riscos reais
+    riscos_reais_dict = {}
+
+    for v in ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14-rc"]:
+        print(f"\n\n🔍 Análise de {v}----------------------------------")
+        for version in ["alpine3.21", "alpine3.22", "bookworm", "bullseye", "slim-bookworm", "slim-bullseye"]:
+            versao_desejada = f"{v}-{version}"
+            risco_real = analise_percentis(percentiles, pesos_riscos, versao_desejada)
+            if risco_real >= 0:
+                    riscos_reais_dict[versao_desejada] = risco_real
+    
+    plot_ranking_riscos(riscos_reais_dict)
+
 
     plota_histogramas_simulados(samples, risco_geral)
 

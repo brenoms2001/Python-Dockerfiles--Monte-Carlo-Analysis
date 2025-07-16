@@ -14,20 +14,20 @@ def analise_percentis(percentiles: np.ndarray, pesos: dict[str, float], versao_d
 
                 print(f"\nRisco real para {versao_desejada}: {risco_real:.2f}")
                 if risco_real < percentiles[0]:
-                    print("🔵 Abaixo do percentil 5% (extremamente segura)\n")
+                    print("🔵 Abaixo do percentil 5% (extremamente segura)")
                 elif risco_real < percentiles[1]:
-                    print("🟢 Abaixo do percentil 25% (segura)\n")
+                    print("🟢 Abaixo do percentil 25% (segura)")
                 elif risco_real < percentiles[2]:
-                    print("🟡 Abaixo do percentil 50% (moderada)\n")
+                    print("🟡 Abaixo do percentil 50% (moderada)")
                 elif risco_real < percentiles[3]:
-                    print("🟠 Abaixo do percentil 75% (considerável)\n")
+                    print("🟠 Abaixo do percentil 75% (considerável)")
                 elif risco_real < percentiles[4]:
-                    print("🔴 Abaixo do percentil 90% (alta)\n")
+                    print("🔴 Abaixo do percentil 90% (alta)")
                 elif risco_real < percentiles[5]:
-                    print("⚫ Entre 90%-95% (crítica)\n")
-                elif risco_real > percentiles[5]:
-                    print("❌ Acima do percentil 95% (extremamente crítica)\n")
-
-                return
+                    print("⚫ Entre 90%-95% (crítica)")
+                else:
+                    print("❌ Acima do percentil 95% (extremamente crítica)")
+                
+                return risco_real
 
     print(f"❌ Versão {versao_desejada} não encontrada em {caminho_matrizes}.")
