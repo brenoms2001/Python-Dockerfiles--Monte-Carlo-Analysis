@@ -9,9 +9,9 @@ from typing import Dict, List
 RISK_WEIGHTS = {
     "UNKNOWN": 0.5,
     "LOW": 1,
-    "MEDIUM": 2,
-    "HIGH": 3,
-    "CRITICAL": 4,
+    "MEDIUM": 3,
+    "HIGH": 7,
+    "CRITICAL": 10,
 }
 
 def _cria_distrib_triangular(param: Dict[str, int]):
@@ -59,7 +59,7 @@ def main() -> None:
     monta_matrizes()
     parametros = distribuicoes_vulnerabilities("matrizes.json")
 
-    n = 50_000
+    n = 50_000  # número de amostras
     samples, risco_geral = simula_monte_carlo(parametros, n)
 
     for nivel, arr in samples.items():
