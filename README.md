@@ -77,3 +77,35 @@ In case you are using Trivy's CLI, the agreggate is showed together with the vul
 ### Run all
 Just run the play.sh if you want to run the whole pipeline.
 ## The Analysis
+
+After generating the vulnerability data for each Python Docker image, the next step is to analyze this information using statistical modeling and simulation.
+
+### Step 1: Building Vulnerability Matrices
+
+The script `criador_matrizes_vulnerabilities.py` processes all the individual JSON files of vulnerabilities and constructs matrices that group the number of vulnerabilities by severity level (`LOW`, `MEDIUM`, `HIGH`, `CRITICAL`) for each Python image version. These matrices are then stored in the file `matrizes.json`, which serves as the input for further analysis.
+
+### Step 2: Creating Distributions
+
+With the matrices ready, `distribuicoes_vulnerabilities.py` is responsible for generating triangular distributions for each severity level. These distributions represent possible values of vulnerabilities based on historical data and are used to simulate future scenarios. The parameters for each triangular distribution (minimum, mode, maximum) are derived from the observed values in the matrices.
+
+### Step 3: Defining Risk Formula
+
+A custom risk score is calculated using a weighted sum of vulnerabilities per severity level. The script `analise_percentis.py` defines this formula, assigning specific weights to each severity level to reflect their relative importance.
+
+### Step 4: Monte Carlo Simulation
+
+Using the triangular distributions and the risk formula, the script `simulacao_MC.py` performs a Monte Carlo simulation by generating 50,000 random samples of vulnerabilities per severity level for each image. The simulation provides a statistical estimate of the overall risk for each Python Docker image, based on historical tendencies and probabilistic modeling.
+
+### Step 5: Visualizing the Results
+
+The script `plota_histogramas_simulados.py` generates plots for the simulated distributions of each severity level and the overall risk. These visualizations help to understand the variability and behavior of the vulnerabilities across Python versions.
+
+### Step 6: Classifying the Risk
+
+Still in `analise_percentis.py`, percentiles of the simulated general risk distribution are used to classify each image's risk level (e.g., low, medium, high). These classifications are determined by comparing each image’s real risk value to the corresponding simulated percentiles.
+
+### Step 7: Ranking the Images
+
+Finally, the script `plot_ranking_riscos.py` produces a horizontal bar plot ranking the official Python images from the highest to the lowest estimated risk. This ranking offers an intuitive summary of which versions are more likely to present vulnerabilities in the future.
+
+---
