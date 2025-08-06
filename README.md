@@ -108,4 +108,8 @@ Still in `analise_percentis.py`, percentiles of the simulated general risk distr
 
 Finally, the script `plot_ranking_riscos.py` produces a horizontal bar plot ranking the official Python images from the highest to the lowest estimated risk. This ranking offers an intuitive summary of which versions are more likely to present vulnerabilities in the future.
 
+### Running the Full Analysis
+
+All analysis steps described above, from building matrices, creating distributions, running the Monte Carlo simulation, generating plots, and ranking the images, are executed by running the main script do arquivo  `simulacao_MC.py`.
+
 ---
