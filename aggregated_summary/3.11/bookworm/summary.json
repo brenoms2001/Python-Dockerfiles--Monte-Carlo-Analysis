@@ -1,0 +1,10 @@
+{
+  "image": "trivy-scan:3.11-bookworm",
+  "summary": {
+    "LOW": 700,
+    "UNKNOWN": 6,
+    "HIGH": 231,
+    "MEDIUM": 594,
+    "CRITICAL": 9
+  }
+}

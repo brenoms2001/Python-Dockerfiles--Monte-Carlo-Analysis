@@ -1,0 +1,4 @@
+{
+  "image": "trivy-scan:3.13-alpine3.22",
+  "summary": {}
+}

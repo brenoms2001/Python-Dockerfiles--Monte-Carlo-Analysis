@@ -3,58 +3,59 @@ from pathlib import Path
 from dotenv import load_dotenv
 import os
 
-# Importa as credenciais da conta no github
+# Import github account credentials
 load_dotenv()
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 HEADERS = {
     "Authorization": f"token {GITHUB_TOKEN}",
     "Accept": "application/vnd.github.v3+json"
 }
-# Especifica o diretório
+
+# Specify directory
 user = "docker-library"
 repo = "python"
-base_path = "baixados"
-versoes = ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14-rc"]
+base_path = "downloaded"
+versions = ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14-rc"]
 
-def baixar_arquivos(path_relativo, pasta_destino):
-    api_url = f"https://api.github.com/repos/{user}/{repo}/contents/{path_relativo}"
+def download_files(relative_path, destination_folder):
+    api_url = f"https://api.github.com/repos/{user}/{repo}/contents/{relative_path}"
     resp = requests.get(api_url, headers=HEADERS)
 
     if resp.status_code != 200:
-        print(f"❌ Erro ao acessar {api_url}: {resp.status_code}")
+        print(f"❌ Error accessing {api_url}: {resp.status_code}")
         return
 
     files = resp.json()
     for file in files:
         if file["type"] == "file" and file.get("download_url"):
-            caminho_arquivo = Path(base_path) / pasta_destino / file["name"]
-            caminho_arquivo.parent.mkdir(parents=True, exist_ok=True)
+            file_path = Path(base_path) / destination_folder / file["name"]
+            file_path.parent.mkdir(parents=True, exist_ok=True)
             r = requests.get(file["download_url"], headers=HEADERS)
             if r.status_code == 200:
-                with open(caminho_arquivo, "w", encoding="utf-8") as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(r.text)
-                print(f"✅ Baixado: {caminho_arquivo}")
+                print(f"✅ Downloaded: {file_path}")
             else:
-                print(f"⚠️ Falha ao baixar {file['name']}")
+                print(f"⚠️ Failed to download {file['name']}")
         elif file["type"] == "dir":
-            novo_path = f"{path_relativo}/{file['name']}"
-            nova_pasta_destino = Path(pasta_destino) / file["name"]
-            baixar_arquivos(novo_path, nova_pasta_destino)
+            new_path = f"{relative_path}/{file['name']}"
+            new_destination_folder = Path(destination_folder) / file["name"]
+            download_files(new_path, new_destination_folder)
 
-# Loop principal: para cada versão, entrar nos subdiretórios
-# como não tem um modo de baixar os diretórios com arquivos diretamente, o código precisa de loops
-for versao in versoes:
-    print(f"🔍 Explorando versão {versao}")
-    api_url = f"https://api.github.com/repos/{user}/{repo}/contents/{versao}"
+# Main loop: for each version, enter the subdirectories
+# since there's no way to download the directories containing the files directly, the code needs loops.
+for version in versions:
+    print(f"🔍 Exploring version {version}")
+    api_url = f"https://api.github.com/repos/{user}/{repo}/contents/{version}"
     resp = requests.get(api_url, headers=HEADERS)
 
     if resp.status_code != 200:
-        print(f"❌ Erro ao acessar versão {versao}: {resp.status_code}")
+        print(f"❌ Error accessing version {version}: {resp.status_code}")
         continue
 
-    subpastas = resp.json()
-    for sub in subpastas:
+    sub_directories = resp.json()
+    for sub in sub_directories:
         if sub["type"] == "dir":
-            subdir_path = f"{versao}/{sub['name']}"
-            destino = f"{versao.replace('/', '_')}/{sub['name']}"
-            baixar_arquivos(subdir_path, destino)
+            subdir_path = f"{version}/{sub['name']}"
+            destination = f"{version.replace('/', '_')}/{sub['name']}"
+            download_files(subdir_path, destination)

@@ -1,33 +1,33 @@
 import json
 import numpy as np
 
-def analise_percentis(percentiles: np.ndarray, pesos: dict[str, float], versao_desejada: str, caminho_matrizes: str = "matrizes.json") -> None:
+def analise_percentis(percentiles: np.ndarray, weights: dict[str, float], target_version: str, path_matrices: str = "matrices.json") -> None:
 
-    with open(caminho_matrizes, "r") as f:
-        dados = json.load(f)
+    with open(path_matrices, "r") as f:
+        data = json.load(f)
 
-    for versao, matriz in dados.items():
-        for base, valores in matriz.items():
-            chave = f"{versao}-{base}"
-            if chave == versao_desejada:
-                risco_real = sum(pesos[k] * valores.get(k, 0) for k in pesos)
+    for version, matrix in data.items():
+        for base, value in matrix.items():
+            key = f"{version}-{base}"
+            if key == target_version:
+                real_risk = sum(weights[k] * value.get(k, 0) for k in weights)
 
-                print(f"\nRisco real para {versao_desejada}: {risco_real:.2f}")
-                if risco_real < percentiles[0]:
-                    print("🔵 Abaixo do percentil 5% (extremamente segura)")
-                elif risco_real < percentiles[1]:
-                    print("🟢 Abaixo do percentil 25% (segura)")
-                elif risco_real < percentiles[2]:
-                    print("🟡 Abaixo do percentil 50% (moderada)")
-                elif risco_real < percentiles[3]:
-                    print("🟠 Abaixo do percentil 75% (considerável)")
-                elif risco_real < percentiles[4]:
-                    print("🔴 Abaixo do percentil 90% (alta)")
-                elif risco_real < percentiles[5]:
-                    print("⚫ Entre 90%-95% (crítica)")
+                print(f"\nReal risk for {target_version}: {real_risk:.2f}")
+                if real_risk < percentiles[0]:
+                    print("🔵 Below percentile 5% (extremely safe)")
+                elif real_risk < percentiles[1]:
+                    print("🟢 Below percentile 25% (safe)")
+                elif real_risk < percentiles[2]:
+                    print("🟡 Below percentile 50% (moderate)")
+                elif real_risk < percentiles[3]:
+                    print("🟠 Below percentile 75% (substantial)")
+                elif real_risk < percentiles[4]:
+                    print("🔴 Below percentile 90% (high)")
+                elif real_risk < percentiles[5]:
+                    print("⚫ Between 90%-95% (critical)")
                 else:
-                    print("❌ Acima do percentil 95% (extremamente crítica)")
+                    print("❌ Above percentile 95% (extremely crictical)")
                 
-                return risco_real
+                return real_risk
 
-    print(f"❌ Versão {versao_desejada} não encontrada em {caminho_matrizes}.")
+    print(f"❌ Version {target_version} not found in {path_matrices}.")

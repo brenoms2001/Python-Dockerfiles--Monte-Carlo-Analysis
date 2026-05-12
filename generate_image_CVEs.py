@@ -2,62 +2,59 @@ import os
 import subprocess
 from pathlib import Path
 
-baixados = Path("baixados") #pasta com as imagens 
-analisados = Path("analisados") #pasta para onde vão os jsons
+downloaded = Path("downloaded") # images directory 
+analyzed = Path("analyzed") # jsons directory
 
-# Armazenar os nomes das imagens criadas para remover depois
-# Otimiza o donwload e no final salva armazenamento
-imagens = []
+# Store the names of the created images for later removal
+# Optimize the download and save storage at the end
+images = []
 
-# Cria diretório de saída (caso não exista)
-analisados.mkdir(exist_ok=True)
+# Creates an output directory (if it doesn't already exist).
+analyzed.mkdir(exist_ok=True)
 
 def docker_build_and_scan(dockerfile_path: Path):
-    versao = dockerfile_path.parts[1]     
-    sub_versao = dockerfile_path.parts[2]   
-    tag = f"trivy-scan:{versao}-{sub_versao}".replace("/", "-")
+    version = dockerfile_path.parts[1]     
+    sub_version = dockerfile_path.parts[2]   
+    tag = f"trivy-scan:{version}-{sub_version}".replace("/", "-")
 
-    # Caminho do diretório onde está o Dockerfile
+    # Path to the directory where the Dockerfile is located.
     build_context = dockerfile_path.parent
 
-    # Caminho espelhado no diretório analisados/
-    output_path = analisados / versao / sub_versao
+    # Mirrored path in the analyzed directory
+    output_path = analyzed / version / sub_version
     output_path.mkdir(parents=True, exist_ok=True)
     output_json = output_path / "trivy-image.json"
 
-    # Pega o dockerfile na pasta baixados, builda, escaneia com trivy
-    # e salva o json com as CVEs na pasta analisados na subpasta de 
-    # mesmo nome
+    # Download the Dockerfile from the downloaded folder, build it, 
+    # scan it with Trivy, and save the JSON file containing the CVEs 
+    # in the analyzed folder within the subfolder of the same name.
     
     try:
-        print(f"🐳 Buildando {tag}...")
+        print(f"🐳 Building {tag}...")
         subprocess.run(
             ["docker", "build", "-f", str(dockerfile_path), "-t", tag, str(build_context)],
             check=True
         )
 
-        # Caminho alternativo porque o código foi feito pra rodar com o docker desktop
-        # O arquivo não é posto no mesmo local que o docker convencional
+        # Alternative approach because the code was written to run with Docker Desktop.
+        # The file is not placed in the same location as in a conventional Docker container
         docker_host = f'unix://{os.environ["HOME"]}/.docker/desktop/docker.sock'
-        print(f"🔍 Escaneando com Trivy: {tag}")
+        print(f"🔍 Scanning with Trivy: {tag}")
         subprocess.run(
             ["trivy", "image", "--docker-host", docker_host, "-f", "json", "-o", str(output_json), tag],
             check=True
         )
-
-        imagens.append(tag)
-
+        images.append(tag)
 
     except subprocess.CalledProcessError as e:
-        print(f"❌ Erro com {tag}: {e}")
+        print(f"❌ Error in {tag}: {e}")
     
-
-# Percorrendo recursivamente todos os Dockerfiles
-for dockerfile in baixados.rglob("Dockerfile"):
+# Iterating recursively through all the Dockerfiles.
+for dockerfile in downloaded.rglob("Dockerfile"):
     docker_build_and_scan(dockerfile)
 
-## Apagando imagens e limpando armazenamento
-#print("\n🧹 Removendo todas as imagens temporárias...")
-#for tag in imagens:
+## Deleting images and clearing storage
+#print("\n🧹 Removing all temporary images...")
+#for tag in images:
 #    subprocess.run(["docker", "rmi", "-f", tag], stdout=subprocess.DEVNULL)
-#    print(f"🗑️  Removida: {tag}")
+#    print(f"🗑️  Removed: {tag}")
