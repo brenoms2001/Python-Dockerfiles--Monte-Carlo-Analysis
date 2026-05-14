@@ -25,7 +25,7 @@ def plot_simulated_histograms(samples: dict[str, np.ndarray],
     # Overall Risk Chart
     plt.figure(figsize=(6, 4))
     sns.histplot(overall_risk, bins=50, kde=True, color="firebrick")
-    plt.title("Simulated Distribution – Overall Risk")
+    plt.title("Simulated Distribution – Estimated Overall Risk")
     plt.xlabel("Weighted Overall Risk")
     plt.ylabel("Frequency")
     plt.grid(True)

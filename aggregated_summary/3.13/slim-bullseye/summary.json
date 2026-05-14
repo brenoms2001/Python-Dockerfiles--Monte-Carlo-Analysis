@@ -6,5 +6,6 @@
     "UNKNOWN": 2,
     "MEDIUM": 24,
     "CRITICAL": 2
-  }
+  },
+  "estimated_risk": 9.100170499999995
 }

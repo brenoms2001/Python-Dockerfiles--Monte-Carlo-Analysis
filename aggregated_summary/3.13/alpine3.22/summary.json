@@ -1,4 +1,5 @@
 {
   "image": "trivy-scan:3.13-alpine3.22",
-  "summary": {}
+  "summary": {},
+  "estimated_risk": 0.0
 }

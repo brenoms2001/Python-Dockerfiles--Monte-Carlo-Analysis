@@ -6,5 +6,6 @@
     "HIGH": 10,
     "MEDIUM": 23,
     "CRITICAL": 1
-  }
+  },
+  "estimated_risk": 3.1871344999999986
 }

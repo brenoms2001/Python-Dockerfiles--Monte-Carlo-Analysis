@@ -2,5 +2,6 @@
   "image": "trivy-scan:3.11-alpine3.22",
   "summary": {
     "HIGH": 2
-  }
+  },
+  "estimated_risk": 0.6842845000000001
 }

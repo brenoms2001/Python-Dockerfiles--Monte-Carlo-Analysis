@@ -10,9 +10,9 @@ def plot_ranking_risks(real_risks: Dict[str, float], output_path: str = "Plots/r
     # Plot
     plt.figure(figsize=(14, 7))
     plt.barh(names, values, color='crimson')
-    plt.xlabel("Weighted Real Risk")
+    plt.xlabel("Weighted Estimated Risk")
     plt.ylabel("Docker Image Version")
-    plt.title("Real Risk Ranking by Version")
+    plt.title("Estimated Risk Ranking by Version")
     plt.gca().invert_yaxis()
     plt.grid(axis='x', linestyle='--', alpha=0.4)
 
