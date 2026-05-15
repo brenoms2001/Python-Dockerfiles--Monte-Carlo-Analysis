@@ -61,7 +61,7 @@ def distributions_vulnerabilities(json_path: str | Path, plot_dir: str | Path = 
 
         # ----- Save chart ------------------------------------------------
         plt.figure(figsize=(6, 4))
-        sns.histplot(all_cves, bins=10, kde=True, color="steelblue")
+        sns.histplot(all_cves, bins=10, kde=False, color="steelblue")
         plt.title(f"CVE histogram – {risk}")
         plt.xlabel("Number of CVEs")
         plt.ylabel("Frequency")

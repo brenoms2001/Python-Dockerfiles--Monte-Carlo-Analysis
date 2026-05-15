@@ -105,11 +105,13 @@ def main() -> None:
     for p, val in zip([5, 25, 50, 75, 90, 95], percentiles):
         print(f"  {p:>2}%: {val:.2f}")
 
-    # 5. Collection of Exact Real Risk
+# 5. Collection of Estimated Risk and Final Classification
     estimated_risks_dict = {}
     summary_dir = Path("aggregated_summary")
     
-    print("\n🔍 Estimated Risk Classification of Images:")
+    risk_classifications = {} 
+    print("\n🔍 Risk Classification of Images (Relative to Simulated Distribution):")
+    
     for summary_file in summary_dir.rglob("summary.json"):
         with open(summary_file, "r") as f:
             data = json.load(f)
@@ -117,11 +119,32 @@ def main() -> None:
             estimated_risks = data.get("estimated_risk", 0.0)
             estimated_risks_dict[img_name] = estimated_risks
             
-            if estimated_risks < percentiles[0]: tag = "🔵 Extremely Safe"
-            elif estimated_risks < percentiles[3]: tag = "🟡 Moderate/Substantial"
-            elif estimated_risks < percentiles[5]: tag = "🔴 High"
-            else: tag = "❌ Critical"
-            print(f"  {img_name.ljust(20)}: {estimated_risks:.2f} ({tag})")
+            # Implementation of the 5 study categories based on percentiles:
+            # percentiles index: [0]=5%, [1]=25%, [2]=50%, [3]=75%, [4]=90%, [5]=95%
+            
+            if estimated_risks < percentiles[0]:
+                category = "Very low relative risk"
+                tag = "🔵"
+            elif estimated_risks < percentiles[1]:
+                category = "Low relative risk"
+                tag = "🟢"
+            elif estimated_risks < percentiles[3]:
+                category = "Intermediate relative risk"
+                tag = "🟡"
+            elif estimated_risks < percentiles[5]:
+                category = "High relative risk"
+                tag = "🟠"
+            else:
+                category = "Very high or critical relative risk"
+                tag = "🔴"
+            
+            risk_classifications[img_name] = category
+            
+            print(f"  {img_name.ljust(22)}: {estimated_risks:7.2f} ({tag} {category})")
+
+    # Save results to JSON for article support
+    with open("risk_classifications.json", "w", encoding="utf-8") as f:
+        json.dump(risk_classifications, f, indent=4)
 
     # 6. Generation of updated charts
     print("\n📉 Generating final charts...")
@@ -129,6 +152,10 @@ def main() -> None:
     
     Path("Plots").mkdir(exist_ok=True)
     plot_ranking_risks(estimated_risks_dict, output_path="Plots/ranking_exposure_risk.png")
+
+    sorted_risks = dict(sorted(estimated_risks_dict.items(), key=lambda item: item[1], reverse=True))
+    with open("estimated_risks_export.json", "w", encoding="utf-8") as f:
+        json.dump(sorted_risks, f, indent=4)
     
     print("✅ Monte Carlo pipeline successfully completed!")
 
