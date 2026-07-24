@@ -4,13 +4,14 @@ import urllib.request
 import urllib.parse
 from pathlib import Path
 
-def parse_cvss_v3_vector(vector_str: str) -> tuple[float, float, bool]:
+def parse_cvss_v3_vector(vector_str: str) -> tuple[float, float, float, bool]:
     """
-    Decodifica a string do vetor CVSS v3.1 para extrair
-    o Impact Subscore (Iv), Exploitability Subscore (Xv) e Escopo (Sv).
+    Decodes the CVSS v3.1 vector string to extract:
+    Base Score (Cv), Impact Subscore (Iv), Exploitability Subscore (Xv), and Scope (Sv).
+    The mode (c_v) of the triangular distribution in the analytical model directly consumes the Base Score.
     """
     if not vector_str or ("3.1" not in vector_str and "3.0" not in vector_str):
-        return 5.0, 1.9, False  # Fallback neutro se o vetor for inválido
+        return 5.0, 5.0, 1.9, False  # Neutral fallback if vector is invalid or missing
         
     metrics = {}
     for part in vector_str.split('/'):
@@ -46,22 +47,24 @@ def parse_cvss_v3_vector(vector_str: str) -> tuple[float, float, bool]:
     
     if not scope_changed:
         impact_subscore = round(6.42 * iss, 1)
+        base_score = 0.0 if impact_subscore <= 0 else min(round(impact_subscore + expl_subscore, 1), 10.0)
     else:
         impact_subscore = round(7.52 * (iss - 0.029) - 3.25 * (iss - 0.02)**15, 1)
+        base_score = 0.0 if impact_subscore <= 0 else min(round(1.08 * (impact_subscore + expl_subscore), 1), 10.0)
 
-    return impact_subscore, expl_subscore, scope_changed
+    return base_score, impact_subscore, expl_subscore, scope_changed
 
 def fetch_real_epss_scores(cve_list: list[str]) -> dict[str, float]:
     """
-    Busca os scores EPSS reais diretamente da API pública e oficial do Fórum FIRST.
-    Usa lotes de 80 para respeitar o limite estrito de caracteres da URL da API.
+    Fetches real EPSS scores directly from the official public API of FIRST Org.
+    Uses batches of 80 to respect strict API URL character limits.
     """
     epss_map = {}
     clean_cves = [c for c in cve_list if c.startswith("CVE-")]
     if not clean_cves:
         return epss_map
 
-    print(f"🌐 Consultando API do FIRST.org para {len(clean_cves)} CVEs únicas...")
+    print(f"🌐 Fetching FIRST.org API for {len(clean_cves)} unique CVEs...")
     batch_size = 80  
     
     for i in range(0, len(clean_cves), batch_size):
@@ -70,7 +73,7 @@ def fetch_real_epss_scores(cve_list: list[str]) -> dict[str, float]:
         url = f"https://api.first.org/data/v1/epss?cve={cve_param}"
         
         try:
-            req = urllib.request.Request(url, headers={'User-Agent': 'TCC-MonteCarlo-Scanner/1.0'})
+            req = urllib.request.Request(url, headers={'User-Agent': 'LADC-Analytical-Scanner/2.0'})
             with urllib.request.urlopen(req, timeout=20) as response:
                 data = json.loads(response.read().decode())
                 results = data.get("data", [])
@@ -79,18 +82,40 @@ def fetch_real_epss_scores(cve_list: list[str]) -> dict[str, float]:
                     epss_val = float(res.get("epss", 0.0001))
                     epss_map[cve_id] = epss_val
         except Exception as e:
-            print(f"  ⚠️ Aviso ao buscar lote {(i//batch_size) + 1}: {e}")
+            print(f"  ⚠️ Warning when fetching EPSS batch {(i//batch_size) + 1}: {e}")
             continue
             
-    print(f"✅ Mapeamento concluído: {len(epss_map)} CVEs associadas a scores EPSS reais.")
+    print(f"✅ EPSS mapping completed: {len(epss_map)} CVEs associated.")
     return epss_map
+
+def fetch_cisa_kev_catalog() -> set[str]:
+    """
+    Fetches the official CISA Known Exploited Vulnerabilities (KEV) catalog.
+    Returns an in-memory set for O(1) verification of active exploitation in the wild.
+    """
+    url = "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
+    kev_set = set()
+    print("🛡️ Querying CISA Known Exploited Vulnerabilities (KEV) catalog...")
+    try:
+        req = urllib.request.Request(url, headers={'User-Agent': 'LADC-Analytical-Scanner/2.0'})
+        with urllib.request.urlopen(req, timeout=15) as response:
+            data = json.loads(response.read().decode())
+            vulnerabilities = data.get("vulnerabilities", [])
+            for vuln in vulnerabilities:
+                cve_id = vuln.get("cveID")
+                if cve_id:
+                    kev_set.add(cve_id)
+        print(f"✅ CISA KEV catalog loaded successfully: {len(kev_set)} active vulnerabilities mapped.")
+    except Exception as e:
+        print(f"  ⚠️ Warning when loading CISA KEV: {e}. Proceeding without KEV flag.")
+    return kev_set
 
 def main():
     scans_dir = Path(".")  
     output_profile = Path("aggregated_summary/environmental_cve_profiles.json")
     output_profile.parent.mkdir(exist_ok=True)
     
-    # ETAPA 1: Coleta preliminar das CVEs únicas
+    # STEP 1: Preliminary collection of unique CVEs
     all_discovered_cves = set()
     scan_files_mapped = []
 
@@ -108,10 +133,11 @@ def main():
             except Exception:
                 continue
 
-    # ETAPA 2: Busca os dados reais na API do FIRST
+    # STEP 2: Fetch external threat intelligence data (FIRST EPSS + CISA KEV)
     epss_database = fetch_real_epss_scores(list(all_discovered_cves))
+    kev_database = fetch_cisa_kev_catalog()
 
-    # ETAPA 3: Processamento e gravação dos perfis por imagem
+    # STEP 3: Processing and storing environmental profiles per image
     environmental_dataset = {}
 
     for json_file in scan_files_mapped:
@@ -119,7 +145,7 @@ def main():
             scan_data = json.load(f)
 
         artifact_name = scan_data.get("ArtifactName", "unknown").replace("trivy-scan:", "")
-        print(f"📦 Compilando métricas para o ambiente: {artifact_name}")
+        print(f"📦 Compiling metrics for environment: {artifact_name}")
         environmental_dataset[artifact_name] = []
 
         for res in scan_data.get("Results", []):
@@ -130,21 +156,24 @@ def main():
                 nvd_v3 = cvss_obj.get("nvd", {}) or cvss_obj.get("redhat", {}) or cvss_obj.get("ghsa", {})
                 vector_str = nvd_v3.get("V3Vector", "")
                 
-                iv, xv, sv = parse_cvss_v3_vector(vector_str)
+                bv, iv, xv, sv = parse_cvss_v3_vector(vector_str)
                 epss_value = epss_database.get(cve_id, 0.0001)
+                is_in_kev = cve_id in kev_database
                 
                 environmental_dataset[artifact_name].append({
                     "cve": cve_id,
+                    "base_score": bv,
                     "impact_subscore": iv,
                     "exploitability_subscore": xv,
                     "scope_changed": sv,
-                    "epss": epss_value
+                    "epss": epss_value,
+                    "in_cisa_kev": is_in_kev
                 })
 
     with open(output_profile, "w", encoding="utf-8") as f:
         json.dump(environmental_dataset, f, indent=4)
         
-    print(f"\n✨ Sucesso! Dataset dinâmico gerado em: {output_profile}")
+    print(f"\n✨ Success! Enriched analytical dataset generated at: {output_profile}")
 
 if __name__ == "__main__":
     main()

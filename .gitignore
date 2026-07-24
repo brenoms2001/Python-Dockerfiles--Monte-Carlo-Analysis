@@ -4,3 +4,7 @@ venv
 *Bootstrap*
 *bootstrap*
 *Plot*
+*repomix*
+*.png
+*.npz
+*.txt

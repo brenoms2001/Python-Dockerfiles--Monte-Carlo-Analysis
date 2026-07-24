@@ -1,13 +1,14 @@
-import os
+import json
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
+from typing import Dict, Any
 
 def shorten_image_label(label: str) -> str:
     """
-    Compresses long image names into standardized short academic phenotypes
-    to prevent axis clipping and optimize horizontal plot space.
+    Compresses long image names into short academic phenotypes
+    to prevent Y-axis clipping and optimize horizontal space in LADC columns.
     Example: 3.10-slim-bookworm -> 3.10 SB
     """
     parts = label.split('-')
@@ -29,39 +30,24 @@ def shorten_image_label(label: str) -> str:
         
     return f"{version} {short}"
 
-def main():
-    # 1. Setup paths
-    data_dir = Path("aggregated_summary")
-    npz_path = data_dir / "environmental_simulation_arrays.npz"
-    output_plot = data_dir / "ecosystem_risk_dispersion_boxplot.png"
-
-    if not npz_path.exists():
-        print(f"❌ Error: Compressed simulation file '{npz_path}' not found.")
-        print("Please run 'MC_simulation_environmental.py' first to generate the arrays.")
-        return
-
-    print("📥 Loading compressed Monte Carlo simulation arrays...")
-    sim_data = np.load(npz_path)
+def render_dispersion_boxplot(sim_data: np.lib.npyio.NpzFile, output_path: Path) -> None:
+    """
+    Generates the horizontal risk dispersion boxplot for the ecosystem (Figure 4 of the paper).
+    Sorted from lowest to highest expected analytical risk.
+    """
+    print("🎨 [1/2] Rendering Ecosystem Dispersion Boxplot (CLT Approximation)...")
     
-    # 2. Extract keys and compute expected means to enforce strict risk ordering
-    print("⚙️ Sorting image environments by their expected mean risk...")
-    image_means = {}
-    for img_name in sim_data.files:
-        image_means[img_name] = float(np.mean(sim_data[img_name]))
-        
-    # Sort images from lowest expected risk to highest expected risk
+    # Sorts images by analytical mean
+    image_means = {img_name: float(np.mean(sim_data[img_name])) for img_name in sim_data.files}
     sorted_images = sorted(image_means.keys(), key=lambda k: image_means[k])
 
-    # 3. Structure data and apply sampling to prevent bloated vector graphics
-    print("🎲 Downsampling points safely (max 5,000 per image) for layout performance...")
-    np.random.seed(42)  # Maintain perfect replication transparency
-    
+    # Safe sampling to optimize Matplotlib vector rendering
+    np.random.seed(42)
     boxplot_data = []
     boxplot_labels = []
     
     for img_name in sorted_images:
         full_array = sim_data[img_name]
-        # Safe sampling toggle to preventValueError if arrays are smaller than 5000 runs
         sample_size = min(5000, len(full_array))
         
         if sample_size > 0:
@@ -70,14 +56,10 @@ def main():
         else:
             boxplot_data.append(full_array)
             
-        # Apply the short label transformation dynamically
         boxplot_labels.append(shorten_image_label(img_name))
 
-    # 4. Canvas rendering and customization via Matplotlib/Seaborn
-    print("🎨 Rendering cleaned ecosystem risk boxplot...")
     fig, ax = plt.subplots(figsize=(12, 9))
     
-    # Render horizontal boxplot with a standardized clean palette
     sns.boxplot(
         data=boxplot_data, 
         ax=ax, 
@@ -87,29 +69,100 @@ def main():
         fliersize=2
     )
 
-    # ======= ENFORCED TITLE REMOVAL (ANTI-CACHE OBLITERATION) =======
-    ax.set_title("")     # Force clears any axis-level title
-    fig.suptitle("")     # Force clears any figure-level global title
+    # Strict title cleanup for compatibility with LaTeX captions (\caption)
+    ax.set_title("")
+    fig.suptitle("")
     
-    # B. FONT SIZE ELEVATION AND AXIS SHORTENING:
-    ax.set_yticklabels(boxplot_labels, fontsize=16) # Elevated image tick labels to 12
-    ax.tick_params(axis='x', labelsize=16)          # Elevated risk numbers to 12
+    ax.set_yticklabels(boxplot_labels, fontsize=14)
+    ax.tick_params(axis='x', labelsize=14)
     
-    # C. AXES LABELS CUSTOMIZATION:
-    ax.set_xlabel("Simulated Exposure Risk Score ($\widetilde{R}_i$)", fontsize=16)
+    # Updated to analytical terminology (CLT)
+    ax.set_xlabel("Analytical Exposure Risk Distribution ($\widetilde{R}_i$)", fontsize=16)
     ax.set_ylabel("Official Python Image Configuration", fontsize=16)
     
-    # Add subtle gridlines for rigorous coordinate alignment
     ax.xaxis.grid(True, linestyle='--', alpha=0.6)
     ax.set_axisbelow(True)
 
-    # 5. Tight bounding boxes and disk serialization
     plt.tight_layout()
-    plt.savefig(output_plot, dpi=300)
-    plt.close(fig) # Explicitly closes the figure context to wipe RAM memory clean
-    plt.close('all')
+    plt.savefig(output_path, dpi=300)
+    plt.close(fig)
+    print(f"  ✅ Boxplot saved to: {output_path}")
+
+def render_analytical_ranking_barchart(summary_data: Dict[str, Any], output_path: Path) -> None:
+    """
+    Generates the expected risk ranking with standard deviation error bars (E[R] ± σ_R).
+    Replaces the old plot_ranking_risks.py with elevated statistical rigor.
+    """
+    print("🎨 [2/2] Rendering Analytical Ranking with Error Bars ($\pm 1\sigma_R$)....")
     
-    print(f"✨ Success! The boxplot has been generated without titles, with compressed labels, and saved to: {output_plot}")
+    # Sorts from highest to lowest expected risk for top-down visualization
+    ordered_items = sorted(summary_data.items(), key=lambda x: x[1]["expected_mean"], reverse=True)
+    
+    labels = [shorten_image_label(k) for k, _ in ordered_items]
+    means = [v["expected_mean"] for _, v in ordered_items]
+    std_devs = [v["std_dev"] for _, v in ordered_items]
+
+    fig, ax = plt.subplots(figsize=(12, 9))
+    
+    # Horizontal bar plot with analytical error bars
+    y_pos = np.arange(len(labels))
+    ax.barh(
+        y_pos, 
+        means, 
+        xerr=std_devs, 
+        align='center', 
+        color='indianred', 
+        edgecolor='black', 
+        linewidth=0.8,
+        alpha=0.85,
+        capsize=3,
+        error_kw={'ecolor': 'dimgray', 'elinewidth': 1.2}
+    )
+    
+    ax.set_yticks(y_pos)
+    ax.set_yticklabels(labels, fontsize=14)
+    ax.tick_params(axis='x', labelsize=14)
+    ax.invert_yaxis()  # Highest risk image at the top
+    
+    # Title cleanup and academic styling
+    ax.set_title("")
+    fig.suptitle("")
+    ax.set_xlabel("Expected Exposure Risk Score ($\mathbb{E}[\widetilde{R}_i] \pm \sigma_{R_i}$)", fontsize=16)
+    ax.set_ylabel("Official Python Image Configuration", fontsize=16)
+    
+    ax.xaxis.grid(True, linestyle='--', alpha=0.6)
+    ax.set_axisbelow(True)
+
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300)
+    plt.close(fig)
+    print(f"  ✅ Ranking chart saved to: {output_path}")
+
+def main():
+    data_dir = Path("aggregated_summary")
+    npz_path = data_dir / "environmental_simulation_arrays.npz"
+    summary_path = data_dir / "analytical_clt_summary.json"
+    
+    output_boxplot = data_dir / "ecosystem_risk_dispersion_boxplot.png"
+    output_ranking = data_dir / "analytical_risk_ranking_barchart.png"
+
+    if not npz_path.exists() or not summary_path.exists():
+        print("❌ Error: Data files not found in the 'aggregated_summary/' folder.")
+        print("Run 'MC_simulation_environmental.py' first.")
+        return
+
+    print("📥 Loading analytical matrices and statistical summaries...")
+    sim_data = np.load(npz_path)
+    
+    with open(summary_path, "r", encoding="utf-8") as f:
+        summary_data = json.load(f)
+
+    # Executes unified rendering
+    render_dispersion_boxplot(sim_data, output_boxplot)
+    render_analytical_ranking_barchart(summary_data, output_ranking)
+    
+    plt.close('all')
+    print("\n✨ Success! Both plots were generated and standardized for LADC 2026.")
 
 if __name__ == "__main__":
     main()

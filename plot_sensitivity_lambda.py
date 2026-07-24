@@ -4,11 +4,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
 
-# Importamos a função de exposição agregada da Prioridade 2
+# Importing the aggregate exposure function
 from cvss_environmental_math import compute_aggregate_epss_exposure
 
 def calculate_cvss_base_score_vectorized(impact: float, exploitability_array: np.ndarray, scope_changed: bool) -> np.ndarray:
-    """Equação oficial vetorizada do CVSS v3.1 com RoundUp1 integrado."""
+    """Vectorized official CVSS v3.1 equation with integrated RoundUp1."""
     if impact <= 0:
         return np.zeros_like(exploitability_array)
     if not scope_changed:
@@ -19,7 +19,7 @@ def calculate_cvss_base_score_vectorized(impact: float, exploitability_array: np
     return np.where(scores_int % 10000 == 0, np.round(scores, 1), np.ceil(np.round(scores, 9) * 10.0) / 10.0)
 
 def identify_family(img_name: str) -> str:
-    """Mapeia a cor e agrupamento por família estrutural de OS."""
+    """Maps color and grouping by OS structural family."""
     name_lower = img_name.lower()
     if "alpine" in name_lower: return "Alpine (Minimal)"
     elif "slim-bookworm" in name_lower: return "Debian Slim (Bookworm)"
@@ -29,32 +29,32 @@ def identify_family(img_name: str) -> str:
     return "Other"
 
 def main():
-    # 1. Configuração de caminhos e carregamento
+    # 1. Path configuration and loading
     data_dir = Path("aggregated_summary")
     output_dir = Path("Plots_Environmental")
     output_dir.mkdir(exist_ok=True)
 
     profile_path = data_dir / "environmental_cve_profiles.json"
     if not profile_path.exists():
-        print("❌ Erro: environmental_cve_profiles.json não encontrado.")
+        print("❌ Error: environmental_cve_profiles.json not found.")
         return
 
     with open(profile_path, "r", encoding="utf-8") as f:
         cve_dataset = json.load(f)
 
-    # Parâmetros de teste e semente fixa para reprodutibilidade
+    # Test parameters and fixed seed for reproducibility
     lambda_vals = [0.1, 0.5, 1.0]
     n_samples = 50000
     rng = np.random.default_rng(seed=42)
 
-    # Estrutura para armazenar as médias calculadas: {imagem: [mean_λ_0.1, mean_λ_0.5, mean_λ_1.0]}
+    # Structure to store calculated means: {image: [mean_λ_0.1, mean_λ_0.5, mean_λ_1.0]}
     sensitivity_results = {img: [] for img in cve_dataset.keys()}
 
-    print(f"🎲 A executar Análise de Sensibilidade perturbando o parâmetro Lambda...")
+    print("🎲 Executing Sensitivity Analysis by perturbing the Lambda parameter...")
 
-    # 2. Loop de Simulação por nível de Lambda
+    # 2. Simulation loop per Lambda level
     for lam in lambda_vals:
-        print(f"  • Simulação em lote para Lambda = {lam:.1f}")
+        print(f"  • Batch simulation for Lambda = {lam:.1f}")
         for img_name, cves in cve_dataset.items():
             if not cves:
                 sensitivity_results[img_name].append(0.0)
@@ -70,7 +70,7 @@ def main():
                 sv = cve["scope_changed"]
                 ev = cve["epss"]
 
-                # Cálculo dinâmico das fronteiras injetando o Lambda atual
+                # Dynamic calculation of boundaries injecting current Lambda
                 hi = (lam * ai * 3.9) / 2.0
                 lower = max(0.0, xv - hi)
                 upper = min(3.9, xv + hi)
@@ -86,22 +86,22 @@ def main():
             sensitivity_results[img_name].append(float(np.mean(image_risk_accumulated)))
 
     # =========================================================
-    # EXIBIÇÃO DE TABELA COMPARATIVA DE RANKING NO TERMINAL
+    # RANKING ORDINAL STABILITY COMPARATIVE TABLE IN TERMINAL
     # =========================================================
-    print("\n📊 TABELA DE ESTABILIDADE ORDINAL DO RANKING")
-    print(f"| {'Configuração da Imagem':<25} | {'Risco (λ=0.1)':<14} | {'Risco (λ=0.5)':<14} | {'Risco (λ=1.0)':<14} |")
+    print("\n📊 RANKING ORDINAL STABILITY TABLE")
+    print(f"| {'Image Configuration':<25} | {'Risk (λ=0.1)':<14} | {'Risk (λ=0.5)':<14} | {'Risk (λ=1.0)':<14} |")
     print("|" + "-"*27 + "|" + "-"*16 + "|" + "-"*16 + "|" + "-"*16 + "|")
     
-    # Ordena com base no resultado padrão de λ=1.0 decrescente
+    # Sorts based on default λ=1.0 result descending
     sorted_images = sorted(sensitivity_results.keys(), key=lambda k: sensitivity_results[k][2], reverse=True)
     for img in sorted_images:
         res = sensitivity_results[img]
         print(f"| {img:<25} | {res[0]:14.4f} | {res[1]:14.4f} | {res[2]:14.4f} |")
 
     # =========================================================
-    # EMISSÃO DE GRÁFICO CIENTÍFICO (SLOPE / SENSITIVITY CHART)
+    # SCIENTIFIC CHART GENERATION (SLOPE / SENSITIVITY CHART)
     # =========================================================
-    print("\n📈 A desenhar gráfico de sensibilidade paralela...")
+    print("\n📈 Rendering parallel sensitivity chart...")
     sns.set_theme(style="whitegrid")
     fig, ax = plt.subplots(figsize=(10, 6))
 
@@ -113,7 +113,7 @@ def main():
         "Full Debian (Bullseye)": "#d62728"
     }
 
-    # Plota uma linha para cada uma das 36 configurações
+    # Plots one line for each configuration
     legend_tracker = set()
     for img in sorted_images:
         family = identify_family(img)
@@ -142,7 +142,7 @@ def main():
     plt.close()
 
     # =========================================================
-    # GERADOR DE TABELA LATEX PARA O OVERLEAF
+    # LATEX TABLE GENERATOR FOR OVERLEAF
     # =========================================================
     latex_path = data_dir / "sensitivity_table_latex.tex"
     with open(latex_path, "w", encoding="utf-8") as f:
@@ -163,8 +163,8 @@ def main():
             
         f.write("\\bottomrule\n\\end{tabular}\n\\end{table}\n")
 
-    print(f"✅ Análise concluída! Imagem salva em: {output_path}")
-    print(f"📄 Código LaTeX gerado para o Overleaf em: {latex_path}")
+    print(f"✅ Analysis completed! Image saved to: {output_path}")
+    print(f"📄 LaTeX code generated for Overleaf at: {latex_path}")
 
 if __name__ == "__main__":
     main()
