@@ -1,115 +1,120 @@
-# Monte Carlo Analysis of Python's Oficial Dockerfiles
+---
 
-This study is divided in two segments: Setting up all the files to be used and applying monte carlo to get an estimative of future vulnerabilities given the python version history.
+```markdown
+# Environment-Conditioned CVSS Distributions for Dependable Risk Analysis of Python Docker Images
 
-## The Setup
-The setup is divided in three segments: Installing dependencies, downloading the dockerfiles and generating the jsons of each docker image with the vulnerabilities associated.
+This repository contains the open-source analytical engine, empirical datasets, and reproduction suite for our LADC 2026 research paper. 
 
-### Installing dependencies
-To run this repository's code is necessary to have Python, Trivy and Docker installed. Versions used in this study:
-
-```bash
-$ python3 --version
-Python 3.12.3
-```
-
-```bash
-$ trivy --version
-Version: 0.64.1
-Vulnerability DB:
-  Version: 2
-  UpdatedAt: 2025-07-12 12:26:53.792939262 +0000 UTC
-  NextUpdate: 2025-07-13 12:26:53.792939112 +0000 UTC
-  DownloadedAt: 2025-07-12 18:53:47.742980188 +0000 UTC
-```
-
-```bash
-$ docker info
-Client: Docker Engine - Community
- Version:    28.3.2
- Context:    desktop-linux
- Debug Mode: false
- Plugins:
-  ai: Docker AI Agent - Ask Gordon (Docker Inc.)
-    Version:  v1.1.3
-    Path:     /usr/lib/docker/cli-plugins/docker-ai
-  buildx: Docker Buildx (Docker Inc.)
-    Version:  v0.22.0-desktop.1
-    Path:     /usr/lib/docker/cli-plugins/docker-buildx
-  cloud: Docker Cloud (Docker Inc.)
-    Version:  0.2.20
-    Path:     /usr/lib/docker/cli-plugins/docker-cloud
-  compose: Docker Compose (Docker Inc.)
-    Version:  v2.34.0-desktop.1
-    Path:     /usr/lib/docker/cli-plugins/docker-compose
-  debug: Get a shell into any image or container (Docker Inc.)
-    Version:  0.0.38
-    Path:     /usr/lib/docker/cli-plugins/docker-debug
-  desktop: Docker Desktop commands (Beta) (Docker Inc.)
-    Version:  v0.1.6
-    Path:     /usr/lib/docker/cli-plugins/docker-desktop
-  dev: Docker Dev Environments (Docker Inc.)
-    Version:  v0.1.2
-    Path:     /usr/lib/docker/cli-plugins/docker-dev
-  extension: Manages Docker extensions (Docker Inc.)
-    Version:  v0.2.27
-    Path:     /usr/lib/docker/cli-plugins/docker-extension
-  init: Creates Docker-related starter files for your project (Docker Inc.)
-    Version:  v1.4.0
-    Path:     /usr/lib/docker/cli-plugins/docker-init
-  sbom: View the packaged-based Software Bill Of Materials (SBOM) for an image (Anchore Inc.)
-    Version:  0.6.0
-    Path:     /usr/lib/docker/cli-plugins/docker-sbom
-  scout: Docker Scout (Docker Inc.)
-    Version:  v1.17.0
-    Path:     /usr/lib/docker/cli-plugins/docker-scout
-
-```
-
-### Dowloading the dockerfiles
-pyDockerfiles_download.py is the script used to call GitHub's API passing the user's token to dowload each version of Python's oficial dockerfiles and saving under the 'baixados' directory. You also need to have a .env file with your token for better privacy.
-
-### Generating Jsons
-generate_image_CVEs.py is the script that builds each dockerfile, scans it with Trivy with the trivy image command and saves it under the 'analisados' directory.  
-Because the json doesn't have the agreggation of vulnerabilities based on severity level, vulnerabilities_agregator.py generates a small json with this info.  
-In case you are using Trivy's CLI, the agreggate is showed together with the vulnerabilities
-
-### Run all
-Just run the play.sh if you want to run the whole pipeline.
-## The Analysis
-
-After generating the vulnerability data for each Python Docker image, the next step is to analyze this information using statistical modeling and simulation.
-
-### Step 1: Building Vulnerability Matrices
-
-The script `criador_matrizes_vulnerabilities.py` processes all the individual JSON files of vulnerabilities and constructs matrices that group the number of vulnerabilities by severity level (`LOW`, `MEDIUM`, `HIGH`, `CRITICAL`) for each Python image version. These matrices are then stored in the file `matrizes.json`, which serves as the input for further analysis.
-
-### Step 2: Creating Distributions
-
-With the matrices ready, `distribuicoes_vulnerabilities.py` is responsible for generating triangular distributions for each severity level. These distributions represent possible values of vulnerabilities based on historical data and are used to simulate future scenarios. The parameters for each triangular distribution (minimum, mode, maximum) are derived from the observed values in the matrices.
-
-### Step 3: Defining Risk Formula
-
-A custom risk score is calculated using a weighted sum of vulnerabilities per severity level. The script `analise_percentis.py` defines this formula, assigning specific weights to each severity level to reflect their relative importance.
-
-### Step 4: Monte Carlo Simulation
-
-Using the triangular distributions and the risk formula, the script `simulacao_MC.py` performs a Monte Carlo simulation by generating 50,000 random samples of vulnerabilities per severity level for each image. The simulation provides a statistical estimate of the overall risk for each Python Docker image, based on historical tendencies and probabilistic modeling.
-
-### Step 5: Visualizing the Results
-
-The script `plota_histogramas_simulados.py` generates plots for the simulated distributions of each severity level and the overall risk. These visualizations help to understand the variability and behavior of the vulnerabilities across Python versions.
-
-### Step 6: Classifying the Risk
-
-Still in `analise_percentis.py`, percentiles of the simulated general risk distribution are used to classify each image's risk level (e.g., low, medium, high). These classifications are determined by comparing each image’s real risk value to the corresponding simulated percentiles.
-
-### Step 7: Ranking the Images
-
-Finally, the script `plot_ranking_riscos.py` produces a horizontal bar plot ranking the official Python images from the highest to the lowest estimated risk. This ranking offers an intuitive summary of which versions are more likely to present vulnerabilities in the future.
-
-### Running the Full Analysis
-
-All analysis steps described above, from building matrices, creating distributions, running the Monte Carlo simulation, generating plots, and ranking the images, are executed by running the main script do arquivo  `simulacao_MC.py`.
+Our framework replaces static, deterministic Common Vulnerability Scoring System (CVSS) point estimates and computationally expensive Monte Carlo simulations with an **environment-conditioned parametric model**. By treating CVSS Exploitability subscores as triangular random variables scaled by real-world threat intelligence (FIRST.org EPSS) and propagating their statistical moments through the **Central Limit Theorem (CLT)**, this engine calculates exact container risk distributions ($\mathbb{E}[\widetilde{R}_i]$ and $\sigma_{R_i}$) in linear time ($\mathcal{O}(N)$).
 
 ---
+
+## 🏗️ System Requirements & Environment Setup
+
+To execute the automated image harvesting, local compilation, vulnerability inspection, and parametric CLT calculations, ensure your environment meets the following baseline dependencies:
+
+### Core Dependencies
+```bash
+$ python3 --version
+Python 3.12.3 (or >= 3.11)
+
+$ trivy --version
+Version: 0.64.1 (or latest)
+
+$ docker info
+Client: Docker Engine - Community
+ Version: 28.3.2
+
+```
+
+### Python Scientific Stack
+
+Install the required analytical and visualization libraries:
+
+```bash
+pip install numpy scipy matplotlib seaborn requests python-dotenv
+
+```
+
+---
+
+## ⚙️ Phase 1: The Empirical Pipeline (Harvesting, Build & Scanning)
+
+The empirical data collection pipeline executes in three sequential stages to ensure filesystem accuracy and reproducible threat intelligence binding.
+
+### 1. Harvesting Official Dockerfiles
+
+The script `pyDockerfiles_download.py` queries the GitHub REST API to download the complete matrix of official Python build configurations from the canonical `docker-library/python` repository.
+
+* **Scope:** 36 distinct container configurations covering Python 3.9 through 3.14-rc across structural OS families: Alpine Linux (`alpine3.21`, `alpine3.22`), streamlined Debian (`slim-bookworm`, `slim-bullseye`), and full Debian (`bookworm`, `bullseye`).
+* **Note:** Create a local `.env` file containing your GitHub personal access token (`GITHUB_TOKEN=your_token_here`) to prevent API rate-limiting during collection.
+
+### 2. Local Image Compilation & Filesystem Scanning
+
+The script `generate_image_CVEs.py` compiles each harvested Dockerfile within an isolated local Docker daemon using the default `docker build` engine (without caching overrides). Crucially, scanning must occur on locally built artifacts rather than static Dockerfiles to accurately capture dynamic build-time package resolutions and OS dependency pulling.
+
+Once compiled, Trivy inspects each local filesystem, exporting structured JSON reports containing package inventories, CVE identifiers, and qualitative severity classifications into the `/analisados` directory.
+
+### 3. Threat Intelligence Ingestion & Subscore Extraction
+
+The script `extract_environmental_data.py` bridges raw scanner inspection logs with our mathematical model:
+
+1. **Native Subscore Extraction:** Disassembles raw CVSS v3.1 vector strings to extract intrinsic Impact ($I_v$) and Exploitability ($X_v$) subscores natively.
+2. **Dynamic EPSS Binding:** Executes asynchronous HTTP batch requests to the official FIRST.org API to bind real-world Exploit Prediction Scoring System ($E_v \in [0,1]$) probabilities to every CVE.
+3. **Forensic CISA KEV Auditing:** Cross-references all identified vulnerabilities against the authoritative Cybersecurity and Infrastructure Security Agency (CISA) Known Exploited Vulnerabilities catalog, appending a boolean active threat indicator (`in_cisa_kev`).
+
+The consolidated output is saved to `environmental_cve_profiles.json`, serving as the empirical input for the analytical engine.
+
+---
+
+## 🧮 Phase 2: The Analytical CLT Engine ($\mathcal{O}(N)$ Execution)
+
+Unlike iterative simulation models that introduce pseudo-random sampling noise and require thousands of computational rounds ($M$) to converge, our analytical framework calculates exact parametric moments in linear time ($\mathcal{O}(N)$).
+
+### 1. Parametric Risk Propagation (`generate_environmental_tables.py`)
+
+This core execution module implements the exact Central Limit Theorem equations derived in our paper:
+
+* **Aggregate Exposure ($A_i$):** Calculates the Initial Breach Surface Approximation across the container's package payload under a first-order statistical independence assumption.
+* **Triangular Exploitability Uncertainty:** Models Exploitability as a continuous triangular random variable $\widetilde{X}_{v|i} \sim \mathrm{Triangular}(L_{v|i}, X_v, U_{v|i})$ whose half-width is dynamically scaled by $A_i$.
+* **Analytical Moments:** Computes exact package-level expectation ($\mu_{C,v|i}$) and variance ($\sigma_{C,v|i}^2$), aggregating them linearly via Lindeberg-Lévy CLT convergence ($\widetilde{R}_i \sim \mathcal{N}(\mu_{R_i}, \sigma_{R_i}^2)$).
+* **Deterministic Percentiles:** Derives exact dependability percentiles ($P_5, P_{50}, P_{95}$) using the standard normal inverse cumulative distribution function (`scipy.stats.norm.ppf`).
+
+⚡ **Performance:** Because it relies on vectorized NumPy linear algebra rather than iterative Monte Carlo loops, this script processes all 36 enterprise container configurations in **under 150 milliseconds**, making it ideal for automated CI/CD quality gating.
+
+### 2. Actionable DevSecOps Triaging Suites
+
+To translate analytical probability distributions into engineering decision support, the repository includes two specialized validation modules:
+
+* **CI/CD Remediation Heuristic (`generate_cicd_prioritization.py`):** Evaluates container remediation efficiency against standard industry point-estimate filters (CVSS $\ge 7.0$). It applies an algorithmic **Pareto 85% cumulative risk threshold** enriched with mandatory CISA KEV promotion rules, generating an actionable DevSecOps patching manifest (`actionable_remediation.json`). This heuristic reduces manual patching workloads by up to **43.74%** in full Debian images while achieving **100% parity** in capturing active real-world threat vectors.
+* **Zero-Day Exploit Drift Harness (`run_exploit_drift_study.py`):** A stress-testing script designed to evaluate runtime resilience during sudden threat escalations. It isolates shared foundational libraries across distinct image architectures, dynamically injects active zero-day exploit drift parameters ($E_v \to 0.85$ on target CVEs), and recalculates system variance shifts ($\sigma_R$) in memory. This module mathematically demonstrates the **Environmental Saturation Effect**, proving that high-density Debian runtimes amplify single-vulnerability risk jumps by **5.1x** compared to slim baselines.
+
+---
+
+## 🚀 Quickstart: Running the End-to-End Suite
+
+To execute the complete pipeline—from Dockerfile downloading and local compilation to CLT parametric calculation, DevSecOps triaging, and analytical visualization rendering—run the master automation script:
+
+```bash
+chmod +x play.sh
+./play.sh
+
+```
+
+### Generated Analytical Artifacts
+
+Upon completion, the suite outputs all necessary empirical tables and publication-ready figures into the root directory and `/figures`:
+
+* `matrizes.json` & `environmental_cve_profiles.json` — Enriched vulnerability databases.
+* `actionable_remediation.json` — CI/CD Pareto 85% patching manifests.
+* `family_risk_densities_kde.png` — Kernel Density Estimation of expected risk across OS base families (RQ1).
+* `ecosystem_risk_dispersion_boxplot.png` — Global risk dispersion and runtime volatility ranking (RQ1 / RQ3).
+* *ANOVA Variance Decomposition Logs* — Confirming that base OS selection is **78,111.1x** more critical to container dependability than Python interpreter upgrades (RQ2).
+
+---
+
+```
+
+```
+
+```
